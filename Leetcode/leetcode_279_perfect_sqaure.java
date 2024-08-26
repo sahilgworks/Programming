@@ -43,23 +43,14 @@ class Driver {
 
         public int numSquares(int n) {
             int[] memory = new int[10001];
-            TreeMap<Integer, Integer> squares = new TreeMap<>();
             Arrays.fill(memory, NOT_INIT);
-            int num = 1;
-            int sq = num * num;
-            while (sq <= n) {
-                squares.put(sq, sq);
-                num++;
-                sq = num * num;
-            }
             //we need to calculate all the perfect sqaures below n
             //and also store them in a collection 
             //also we need to query them, like all sqaures less than a given number
-
-            return numSquares(n, memory, squares);
+            return numSquares(n, memory);
         }
 
-        private int numSquares(int n, int[] memory, TreeMap<Integer, Integer> squares) {
+        private int numSquares(int n, int[] memory) {
             boolean printLogs = false;
             if (printLogs) {
                 System.out.println("n:" + n + " inside numSquares");
@@ -78,22 +69,22 @@ class Driver {
             }
             int minOps = NOT_POSSIBLE;
             Integer lastUsedNum = 0;
-            NavigableMap<Integer, Integer> map = squares.headMap(n, true);
-            Iterator<Integer> iterator = map.descendingKeySet().iterator();
-            while (iterator.hasNext()) {
-                lastUsedNum = iterator.next();
+            int i = 1;
+            int sq = i*i;
+            while (sq<=n) {
+                lastUsedNum = sq;
                 if (printLogs) {
                     System.out.println("n:" + n + " lastUsedNum: " + lastUsedNum);
                 }
-                int temp = numSquares(n - lastUsedNum, memory, squares);
+                int temp = numSquares(n - lastUsedNum, memory);
                 if (temp != NOT_POSSIBLE) {
                     minOps = Math.min(minOps, 1 + temp);
-                    // memory[n] = minOps;
-                    // return minOps;
                 }
                 if (printLogs) {
                     System.out.println("n:" + n + " lastUsedNum: " + lastUsedNum + " temp:" + temp + " minOps:" + minOps);
                 }
+                i++;
+                sq = i * i;
             }
             memory[n] = minOps;
             return minOps;
