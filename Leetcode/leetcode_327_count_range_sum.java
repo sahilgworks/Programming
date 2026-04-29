@@ -24,6 +24,32 @@ public class leetcode_327_count_range_sum{
         upper = 0;
         expected = 1;
         System.out.println("expected:  "+expected+", actual:"+sol.countRangeSum(nums, lower, upper));
+        
+        nums = new int[]{1};
+        lower = -1;
+        upper = 2;
+        expected = 1;
+        System.out.println("expected:  "+expected+", actual:"+sol.countRangeSum(nums, lower, upper));
+
+        
+        nums = new int[]{1,2};
+        lower = -1;
+        upper = 2;
+        expected = 2;
+        System.out.println("expected:  "+expected+", actual:"+sol.countRangeSum(nums, lower, upper));
+        
+        nums = new int[]{0,2,1,4};
+        lower = 1;
+        upper = 3;
+        expected = 5;
+        System.out.println("expected:  "+expected+", actual:"+sol.countRangeSum(nums, lower, upper));
+        
+        
+        nums = new int[]{2, -1, 3, -2, 4, -1};
+        lower = 2;
+        upper = 5;
+        expected = 13;
+        System.out.println("expected:  "+expected+", actual:"+sol.countRangeSum(nums, lower, upper));
 
     }
 
@@ -216,32 +242,37 @@ public class leetcode_327_count_range_sum{
             *
             **/
             public int countRangeSum(int[] nums, int lower, int upper) {
-                int[] prefix = new int[nums.length+1];
-                prefix[0] = 0;
+                //System.out.println("question:"+Arrays.toString(nums)+" lower:"+lower+", upper: "+upper);
+                long[] prefix = new long[nums.length+1];
+                prefix[0] = 0L;
                 for(int i=0;i<nums.length;i++){
                     prefix[i+1] = prefix[i]+nums[i];
                 }
-                return mergesort(prefix, lower, upper, 0, nums.length);
+                return mergesort(prefix, lower, upper, 0, nums.length+1);
             }
 
 
-        int mergesort(int[] prefix, int lower, int upper, int start, int end){
-            int len = end-start+1;
+        int mergesort(long[] prefix, int lower, int upper, int start, int end){
+            int len = end-start;
             if(len <= 1){
                 return 0;
             }else{
-                int mid = (end-start)/2;
+                int mid = (end+start)/2;
                 int left = mergesort(prefix, lower, upper, start, mid);
-                int right = mergesort(prefix, lower, upper, mid+1, end);
-                int cross = cross(prefix, lower, upper, start, mid, end);
-                merge(prefix, start, mid, end);
+                int right = mergesort(prefix, lower, upper, mid, end);
+                int cross = 0;
+                if(start<mid && mid<end){
+                    cross = cross(prefix, lower, upper, start, mid, end);
+                    //System.out.println("lower"+lower+"upper"+upper+"start"+start+"mid"+mid+"end"+end);
+                    merge(prefix, start, mid, end);
+                }
                 return left+right+cross;
             }
         }
 
-        void merge(int[] prefix, int start, int mid, int end){
-            int[] left = Arrays.copyOfRange(prefix, start, mid+1);
-            int[] right = Arrays.copyOfRange(prefix, mid+1, end+1);
+        void merge(long[] prefix, int start, int mid, int end){
+            long[] left = Arrays.copyOfRange(prefix, start, mid);
+            long[] right = Arrays.copyOfRange(prefix, mid, end);
             int i=0;
             int j=0;
             int k=start;
@@ -256,29 +287,29 @@ public class leetcode_327_count_range_sum{
                 while(i<left.length){
                     prefix[k++] = left[i++];
                 }
-            }else{
+            }else if(j<right.length){
                 while(j<right.length){
-                    prefix[k++] = left[j++];
+                    prefix[k++] = right[j++];
                 }
             }
         }
         
-        int cross(int[] prefix, int lower, int upper, int start, int mid, int end){
-            int low = mid+1;
-            int high = mid+1;
+        int cross(long[] prefix, int lower, int upper, int start, int mid, int end){
+            int low = mid;
+            int high = mid;
             int result = 0;
             int i;
-            for(int j=start;j<mid+1;j++){
+            for(int j=start;j<mid;j++){
                 i = low;
-                while(i<=end && prefix[i]<(lower+prefix[j])){
+                while(i<end && prefix[i]<(((long)lower)+prefix[j])){
                     i++;
                 }
-                if(i > end){
+                if(i >= end){
                     continue;//no range found
                 }
                 low = i;
-                i = high;
-                while(i<=end && prefix[i]<=(upper+prefix[j])){
+                i = Math.max(low, high);
+                while(i<end && prefix[i]<=(((long)upper)+prefix[j])){
                     i++;
                 }
                 high = i;
