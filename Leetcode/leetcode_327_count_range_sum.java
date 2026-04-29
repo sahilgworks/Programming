@@ -11,6 +11,7 @@ public class leetcode_327_count_range_sum{
         int expected;
 
 
+        //SolutionV1 sol = new SolutionV1();
         SolutionV2 sol = new SolutionV2();
 
         nums = new int[]{-2, 5,-1};
@@ -304,15 +305,14 @@ public class leetcode_327_count_range_sum{
                 while(i<end && prefix[i]<(((long)lower)+prefix[j])){
                     i++;
                 }
-                if(i >= end){
-                    continue;//no range found
-                }
                 low = i;
                 i = Math.max(low, high);
                 while(i<end && prefix[i]<=(((long)upper)+prefix[j])){
                     i++;
                 }
                 high = i;
+                //in case there is no valid range both low and high will point to end - because both for loops will end when i reaches end value so it will be zero
+                //
                 result += high - low;
             }
             return result;
